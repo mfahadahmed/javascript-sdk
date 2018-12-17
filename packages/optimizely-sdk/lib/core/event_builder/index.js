@@ -125,15 +125,6 @@ function getVisitorSnapshot(configObj, eventKey, eventTags, experimentsToVariati
     events: []
   };
 
-  fns.forOwn(experimentsToVariationMap, function(variationId, experimentId) {
-    var decision = {
-      campaign_id: projectConfig.getLayerId(configObj, experimentId),
-      experiment_id: experimentId,
-      variation_id: variationId,
-    };
-
-    snapshot.decisions.push(decision);
-  });
 
   var eventDict = {
     entity_id: projectConfig.getEventId(configObj, eventKey),

@@ -225,13 +225,17 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
         return;
       }
 
-      // determine which experiments and variations we should be tracking for the given event
-      var validExperimentsToBucketedVariations = this.__getValidExperimentsForEvent(eventKey, userId, attributes);
-      if (!Object.keys(validExperimentsToBucketedVariations).length) {
-        // Return and do not send conversion events if the event is not associated with any running experiments
-        this.logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.EVENT_NOT_ASSOCIATED_WITH_EXPERIMENTS,
-          MODULE_NAME,
-          eventKey));
+      var experimentIdsForEvent = projectConfig.getExperimentIdsForEvent(this.configObj, eventKey);
+      var anyRunning = false;
+      fns.forEach(experimentIdsForEvent, function(experimentId) {
+        var experimentKey = this.configObj.experimentIdMap[experimentId].key;
+        if (projectConfig.isRunning(this.configObj, experimentKey)) {
+          anyRunning = true;
+          return false; // Stop iteration - running experiment found
+        }
+      }, this);
+      if (!anyRunning) {
+        // Don't track - no experiments using this event are running
         return;
       }
 
