@@ -233,7 +233,7 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
           anyRunning = true;
           return false; // Stop iteration - running experiment found
         }
-      }, this);
+      }.bind(this));
       if (!anyRunning) {
         // Don't track - no experiments using this event are running
         return;
@@ -249,7 +249,6 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
         configObj: this.configObj,
         eventKey: eventKey,
         eventTags: eventTags,
-        experimentsToVariationMap: validExperimentsToBucketedVariations,
         logger: this.logger,
         userId: userId,
       };
