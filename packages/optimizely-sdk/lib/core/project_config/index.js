@@ -278,6 +278,7 @@ module.exports = {
    * @return {Array<string>}        All experiment IDs for the event
    * @throws If event key is not in datafile
    */
+  // TODO: Is this unused now?
   getExperimentIdsForEvent: function(projectConfig, eventKey) {
     var event = projectConfig.eventKeyMap[eventKey];
     if (event) {
@@ -604,5 +605,15 @@ module.exports = {
    */
   getAudiencesById: function(projectConfig) {
     return projectConfig.audiencesById;
+  },
+
+  /**
+   *
+   * @param {Object} projectConfig
+   * @param {string} eventKey
+   * @returns {Object|null}
+   */
+  getEvent: function(projectConfig, eventKey) {
+    return projectConfig.eventKeyMap[eventKey] || null;
   },
 };

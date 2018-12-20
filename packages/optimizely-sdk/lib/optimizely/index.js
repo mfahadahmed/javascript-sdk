@@ -66,7 +66,7 @@ function Optimizely(config) {
     if (typeof config.datafile === 'string' || config.datafile instanceof String) {
       config.datafile = JSON.parse(config.datafile);
     }
-    
+
     if (config.skipJSONValidation === true) {
       this.configObj = projectConfig.createProjectConfig(config.datafile);
       this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.SKIPPING_JSON_VALIDATION, MODULE_NAME));
@@ -136,7 +136,7 @@ Optimizely.prototype.activate = function (experimentKey, userId, attributes) {
         this.logger.log(LOG_LEVEL.DEBUG, shouldNotDispatchActivateLogMessage);
         return variationKey;
       }
-      
+
       this._sendImpressionEvent(experimentKey, variationKey, userId, attributes);
 
       return variationKey;
@@ -214,7 +214,7 @@ Optimizely.prototype._sendImpressionEvent = function(experimentKey, variationKey
  */
 Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
   try {
-    
+
     if (!this.isValidInstance) {
       this.logger.log(LOG_LEVEL.ERROR, sprintf(LOG_MESSAGES.INVALID_OBJECT, MODULE_NAME, 'track'));
       return;
@@ -225,21 +225,13 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
         return;
       }
 
-      var experimentIdsForEvent = projectConfig.getExperimentIdsForEvent(this.configObj, eventKey);
-      var anyRunning = false;
-      fns.forEach(experimentIdsForEvent, function(experimentId) {
-        var experimentKey = this.configObj.experimentIdMap[experimentId].key;
-        if (projectConfig.isRunning(this.configObj, experimentKey)) {
-          anyRunning = true;
-          return false; // Stop iteration - running experiment found
-        }
-      }.bind(this));
-      if (!anyRunning) {
-        // Don't track - no experiments using this event are running
+      if (!projectConfig.getEvent(this.configObj, eventKey)) {
+        // Don't track - event doesn't exist
+        // TODO: Probably should call error handler to maintain existing contract
         return;
       }
 
-      // remove null values from eventTags      
+      // remove null values from eventTags
       eventTags = this.__filterEmptyValues(eventTags);
 
       var conversionEventOptions = {
