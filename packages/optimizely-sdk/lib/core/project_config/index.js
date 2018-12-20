@@ -611,9 +611,9 @@ module.exports = {
    *
    * @param {Object} projectConfig
    * @param {string} eventKey
-   * @returns {Object|null}
+   * @returns {boolean}
    */
-  getEvent: function(projectConfig, eventKey) {
-    return projectConfig.eventKeyMap[eventKey] || null;
+  eventWithKeyExists: function(projectConfig, eventKey) {
+    return !!projectConfig.eventKeyMap[eventKey];
   },
 };

@@ -225,7 +225,7 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
         return;
       }
 
-      if (!projectConfig.getEvent(this.configObj, eventKey)) {
+      if (!projectConfig.eventWithKeyExists(this.configObj, eventKey)) {
         // Don't track - event doesn't exist
         // TODO: Probably should call error handler to maintain existing contract
         return;
