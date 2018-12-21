@@ -120,6 +120,7 @@ function getImpressionEventParams(configObj, experimentId, variationId) {
  */
 function getVisitorSnapshot(configObj, eventKey, eventTags, logger) {
   var snapshot = {
+    decisions: [],
     events: []
   };
 
