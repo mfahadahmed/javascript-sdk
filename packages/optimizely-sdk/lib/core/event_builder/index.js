@@ -207,6 +207,7 @@ module.exports = {
                                             options.logger);
 
     commonParams.visitors[0].snapshots = [snapshot];
+    commonParams.enrich_decisions = true;
     conversionEvent.params = commonParams;
 
     return conversionEvent;
