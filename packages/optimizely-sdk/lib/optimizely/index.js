@@ -226,8 +226,7 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
       }
 
       if (!projectConfig.eventWithKeyExists(this.configObj, eventKey)) {
-        // Don't track - event doesn't exist
-        // TODO: Probably should call error handler to maintain existing contract
+        this.logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.INVALID_EVENT_KEY, MODULE_NAME, eventKey));
         return;
       }
 
@@ -400,53 +399,6 @@ Optimizely.prototype.__validateInputs = function(stringInputs, userAttributes, e
     this.errorHandler.handleError(ex);
     return false;
   }
-};
-
-/**
- * Given an event, determine which experiments we should be tracking for the given user.
- * We only dispatch events for experiments that are have the "Running" status and for which
- * the user has been bucketed into.
- * @param  {string} eventKey
- * @param  {string} userId
- * @param  {Object} attributes
- * @return {Object} Map of experiment ids that we want to track to variations ids in which the user has been bucketed
- */
-Optimizely.prototype.__getValidExperimentsForEvent = function(eventKey, userId, attributes) {
-  var validExperimentsToVariationsMap = {};
-
-  // get all the experiments that are tracking this event
-  var experimentIdsForEvent = projectConfig.getExperimentIdsForEvent(this.configObj, eventKey);
-  if (!experimentIdsForEvent) {
-    return validExperimentsToVariationsMap;
-  }
-
-  // determine which variations the user has been bucketed into
-  validExperimentsToVariationsMap = fns.reduce(experimentIdsForEvent, function(results, experimentId) {
-    var experimentKey = this.configObj.experimentIdMap[experimentId].key;
-
-    // user needs to be bucketed into experiment for us to track the event
-    var variationKey = this.getVariation(experimentKey, userId, attributes);
-    if (variationKey) {
-      // if experiment is active but not running, it is in LAUNCHED state, so we don't track a conversion for it
-      if (!projectConfig.isRunning(this.configObj, experimentKey)) {
-        var shouldNotDispatchTrackLogMessage = sprintf(LOG_MESSAGES.SHOULD_NOT_DISPATCH_TRACK, MODULE_NAME, experimentKey);
-        this.logger.log(LOG_LEVEL.DEBUG, shouldNotDispatchTrackLogMessage);
-      } else {
-        // if running + user is bucketed then add to result
-        var variationId = projectConfig.getVariationIdFromExperimentAndVariationKey(this.configObj, experimentKey, variationKey);
-        results[experimentId] = variationId;
-      }
-    } else {
-      var notTrackingUserForExperimentLogMessage = sprintf(LOG_MESSAGES.NOT_TRACKING_USER_FOR_EXPERIMENT,
-                                                           MODULE_NAME,
-                                                           userId,
-                                                           experimentKey);
-      this.logger.log(LOG_LEVEL.DEBUG, notTrackingUserForExperimentLogMessage);
-    }
-    return results;
-  }.bind(this), {});
-
-  return validExperimentsToVariationsMap;
 };
 
 /**
